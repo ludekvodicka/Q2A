@@ -1,0 +1,6 @@
+/qa-config.php
+/qa-cache/*
+!/qa-cache/.htaccess
+/qa-uploads/
+/upfiles/
+.DS_Store

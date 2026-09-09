@@ -1,0 +1,12 @@
+.git
+.checkpoints
+.aidocs
+docs
+qa-config.php
+qa-cache/*
+qa-uploads
+upfiles
+.DS_Store
+**/.DS_Store
+Dockerfile
+.dockerignore

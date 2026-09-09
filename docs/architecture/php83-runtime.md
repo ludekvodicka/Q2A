@@ -1,0 +1,50 @@
+# PHP 8.3 runtime for the Q2A fork
+
+**Decision date: 2026-09-09.** The owner selected `ludekvodicka/Q2A` as the repository for an independently maintained Question2Answer fork. Security fixes to the fork are now our responsibility. Retaining an unmodified upstream core was considered and rejected by the owner.
+
+## Source provenance
+
+The initial source comes from the official release asset, not the master branch or an older local checkout:
+
+- Release: <https://github.com/q2a/question2answer/releases/tag/v1.8.8>
+- Asset: `question2answer-1.8.8.zip`
+- SHA-256: `1456ef9ebd4e8029e43e819be158a69f73c919ca38350f230fece1a6907ec4d2`
+- Q2A version: `1.8.8`, database schema: `67`.
+
+The release already calls PHPMailer **6.6.3** from `qa-include/vendor/PHPMailer6`. The older `PHPMailer` directory is upstream baggage, not the active mail implementation. Replacing the release mail files with the old deployment's PHPMailer 5.2.26 would downgrade the code. Instead, `qa-include/app/emails.php` carries forward the existing SMTP certificate-verification behavior as a small change to the release implementation. Enabling certificate verification and updating the bundled mailer remain a separate, delivery-tested change.
+
+## Container contract
+
+`Dockerfile` builds from the official PHP 8.3 Apache image on Debian 12, pinned by digest. Debian security updates are installed during the build. PHP extensions include MySQLi/mysqlnd, GD, mbstring and ZIP. Apache serves Q2A with rewrite rules and blocks direct access to configuration and dependency directories.
+
+`docker/qa-config.php` reads configuration directly at runtime. It does not generate a credential-bearing PHP file or read an old installation's configuration:
+
+| Environment variable | Meaning |
+|---|---|
+| `QUESTION2ANSWER_DB_HOST` | Database hostname, optionally `host:port` |
+| `QUESTION2ANSWER_DB_USER` | Application database account |
+| `QUESTION2ANSWER_DB_NAME` | Application database |
+| `QUESTION2ANSWER_DB_PASSWORD_FILE` | Optional mounted password file |
+| `QUESTION2ANSWER_DB_PASSWORD` | Password when no password file is supplied |
+
+Missing configuration fails explicitly. Table prefix is `qa_`. Local blob storage is `/var/www/html/qa-uploads/`; cache storage is outside the document root at `/var/lib/q2a/cache/`. Reverse proxies should provide `X-Forwarded-Proto`; the container itself has no published port in the staging deployment.
+
+PHP reports `E_ALL` to the container error log. Browser error display is disabled. The image has an HTTP health check. Site-specific themes and plugins remain in the downstream deployment repository, so this public fork contains no site credentials or production data.
+
+## Database compatibility
+
+The official 1.8.8 source defines `QA_DB_VERSION_CURRENT = 67`. A source database already at version 67 needs validation with `qa_db_check_tables()`, not an invented version increment. PHP 8.3/mysqlnd connects to MySQL 9 using `caching_sha2_password`.
+
+## Build
+
+```powershell
+docker --context moonhill build -t q2a-core:1.8.8-php83 Q:/ApplicationsAi/Q2A
+```
+
+The deployment repository then builds its site image from this locally built base. Both image builds must target the same Docker engine. Git publication and deployment are separate operations; local image construction does not publish the repository.
+
+## Constraints
+
+- Deploy in stages and review a copy of live data before cutover.
+- A package scan does not establish that the Q2A application or manually bundled PHP libraries have no vulnerabilities.
+- A production rollback must restore the previous application image and its original database together. It cannot safely point the old application at data modified by a later incompatible schema migration.
