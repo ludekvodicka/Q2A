@@ -30,7 +30,7 @@ Q2A is highly customisable with many awesome features:
 - Out-of-the-box Joomla! 3.0+ integration (in conjunction with a Joomla! extension).
 - Custom single sign-on support for other sites.
 - PHP/MySQL scalable to millions of users and posts.
-- Safe from XSS, CSRF and SQL injection attacks.
+- Includes escaping and CSRF protections; ongoing security review is the fork maintainer's responsibility.
 - Beat spam with captchas, rate-limiting, moderation and/or flagging.
 - Block users, IP addresses, and censor words
 

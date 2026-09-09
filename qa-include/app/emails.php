@@ -164,14 +164,6 @@ function qa_send_email($params)
 			$mailer->SMTPSecure = qa_opt('smtp_secure');
 		}
 
-		$mailer->SMTPOptions = array(
-			'ssl' => array(
-				'verify_peer' => false,
-				'verify_peer_name' => false,
-				'allow_self_signed' => true,
-			),
-		);
-
 		if (qa_opt('smtp_authenticate')) {
 			$mailer->SMTPAuth = true;
 			$mailer->Username = qa_opt('smtp_username');

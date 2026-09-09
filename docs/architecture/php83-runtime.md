@@ -11,7 +11,7 @@ The initial source comes from the official release asset, not the master branch 
 - SHA-256: `1456ef9ebd4e8029e43e819be158a69f73c919ca38350f230fece1a6907ec4d2`
 - Q2A version: `1.8.8`, database schema: `67`.
 
-The release already calls PHPMailer **6.6.3** from `qa-include/vendor/PHPMailer6`. The older `PHPMailer` directory is upstream baggage, not the active mail implementation. Replacing the release mail files with the old deployment's PHPMailer 5.2.26 would downgrade the code. Instead, `qa-include/app/emails.php` carries forward the existing SMTP certificate-verification behavior as a small change to the release implementation. Enabling certificate verification and updating the bundled mailer remain a separate, delivery-tested change.
+The release originally called PHPMailer **6.6.3** from `qa-include/vendor/PHPMailer6`. The fork now uses **6.12.0** with certificate and hostname verification enabled. The older `PHPMailer` directory is upstream baggage, not the active mail implementation. See [SMTP transport](smtp-transport.md) for provenance and delivery verification.
 
 ## Container contract
 
