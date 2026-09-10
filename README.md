@@ -4,6 +4,14 @@ This repository starts from the official Question2Answer 1.8.8 release and provi
 
 See [the runtime architecture](docs/architecture/php83-runtime.md) for source provenance, database configuration, build instructions and maintenance responsibilities. Site-specific Skipper themes, plugins, credentials and data live in the deployment repository.
 
+## Skipper theme preview
+
+A live deployment of this fork with the custom Skipper theme, showing the public [Skipper support site](https://www.skipper18.com/support/).
+
+![Skipper support homepage with its custom theme: branded navigation, recent questions, answer counts, tags and community sidebar](.aidocs/screenshots/skipper-theme-home-1022x900.png)
+
+Screenshot captured on 2026-09-10. This is an example of a site built on the fork. The Skipper theme is maintained in the deployment repository; this public repository includes the standard Q2A themes listed below.
+
 ## What we changed
 
 The fork retains Question2Answer 1.8.8 and its database schema 67. Its changes focus on the runtime, deployment and mail transport:
@@ -33,7 +41,21 @@ The support site built on this fork also moved from PHP 5.6/MySQL 5.7 to PHP 8.3
 - A registration flow in which users confirm their email, submit their first question, answer or comment immediately, and wait for post moderation. Prior account approval is not required to submit.
 - A staging environment using a copy of the database, a separate upload prefix and captured test email, with migration checks and a documented rollback procedure.
 
-These are deployment-specific changes, not themes or plugins bundled in this public fork. Production data and credentials are not included.
+These are deployment-specific changes, not themes or plugins bundled in this public fork. Database dumps, private data and credentials are not included.
+
+## Theme compatibility
+
+**The standard Question2Answer 1.8.8 theme interface is unchanged.** This repository includes the original **Candy, Classic, Snow and SnowFlat** themes. Their source files and the base theme renderer are unchanged from the official 1.8.8 release.
+
+Themes use Q2A's normal `qa-theme/<theme-name>/` structure. Custom PHP themes can extend `qa_html_theme_base`. A third-party theme must support both **Q2A 1.8.8** and **PHP 8.3**. An older theme may require PHP compatibility fixes even though the fork has not changed the theme interface; compatibility with every third-party theme has not been tested.
+
+### How the Skipper theme is installed
+
+The Skipper deployment builds its site image on top of the public core image. During that build, it copies its custom theme files into `qa-theme/SnowFlat`, replacing the stock SnowFlat files at the same paths. The site's selected theme remains `SnowFlat`, so Q2A loads the Skipper implementation from that directory.
+
+The custom theme extends the standard `qa_html_theme_base`. It provides the Skipper header, navigation, typography, styles and footer, while Q2A's base renderer handles questions, answers, comments and forms. Its footer is rendered by the theme's PHP `footer()` method. It is not injected by JavaScript or fetched from the marketing site on each request.
+
+**The stock SnowFlat theme does not need a compatibility repair for this arrangement.** The shared folder name is a deployment choice, not a change to Q2A's theme format. Changing the Skipper theme requires rebuilding and redeploying the site image; it does not require modifying the public fork's stock SnowFlat theme.
 
 ## Upstream project
 
