@@ -9,12 +9,13 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 COPY docker/php.ini /usr/local/etc/php/conf.d/q2a.ini
-COPY docker/apache.conf /etc/apache2/conf-enabled/q2a.conf
+COPY docker/apache.conf /etc/apache2/conf-enabled/zz-q2a.conf
 COPY . /var/www/html/
 COPY docker/qa-config.php /var/www/html/qa-config.php
 COPY .htaccess-example /var/www/html/.htaccess
 
 RUN install -d -o www-data -g www-data /var/lib/q2a/cache /var/www/html/qa-uploads /var/www/html/upfiles \
+ && install -d -m 0700 -o www-data -g www-data /var/lib/q2a/upload-temp \
  && rm -rf /var/www/html/docker /var/www/html/docs /var/www/html/qa-external-example
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \

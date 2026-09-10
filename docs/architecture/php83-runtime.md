@@ -31,6 +31,16 @@ Missing configuration fails explicitly. Table prefix is `qa_`. Local blob storag
 
 PHP reports `E_ALL` to the container error log. Browser error display is disabled. The image has an HTTP health check. Site-specific themes and plugins remain in the downstream deployment repository, so this public fork contains no site credentials or production data.
 
+### Apache configuration and upload isolation
+
+As of 2026-09-10, the Q2A Apache configuration is installed as `conf-enabled/zz-q2a.conf`. Debian's `security.conf` previously loaded after `q2a.conf` and restored `ServerTokens OS` and `ServerSignature On`. Loading the Q2A configuration last makes `ServerTokens Prod` and `ServerSignature Off` effective. This reduces version disclosure; it does not fix application vulnerabilities.
+
+PHP uploads use `/var/lib/q2a/upload-temp`, created with owner `www-data` and mode `0700`. This replaces the implicit shared `/tmp` fallback and keeps temporary uploads outside the web root. Persistent uploads remain in their existing locations.
+
+`allow_url_include` is explicitly disabled. `allow_url_fopen` remains enabled because Q2A's `qa_retrieve_url()` and plugin HTTP integrations use URL-aware file functions. Turning off URL wrappers is not equivalent to disabling remote code inclusion and would change those HTTP paths. Remote URL validation remains the responsibility of each caller.
+
+See the PHP documentation for [URL wrapper settings](https://www.php.net/manual/en/filesystem.configuration.php) and [upload temporary directories](https://www.php.net/manual/en/ini.core.php#ini.upload-tmp-dir), and Apache's [ServerSignature](https://httpd.apache.org/docs/2.4/mod/core.html#serversignature) and [ServerTokens](https://httpd.apache.org/docs/2.4/mod/core.html#servertokens) documentation.
+
 ## Database compatibility
 
 The official 1.8.8 source defines `QA_DB_VERSION_CURRENT = 67`. A source database already at version 67 needs validation with `qa_db_check_tables()`, not an invented version increment. PHP 8.3/mysqlnd connects to MySQL 9 using `caching_sha2_password`.
