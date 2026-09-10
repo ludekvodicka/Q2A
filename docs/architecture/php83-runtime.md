@@ -47,8 +47,10 @@ The official 1.8.8 source defines `QA_DB_VERSION_CURRENT = 67`. A source databas
 
 ## Build
 
+The local platform checkout is `Q:/ApplicationsPlatforms/Q2A`, moved here on 2026-09-10 to keep reusable platforms in the platform workspace. Its Git history, GitHub remote and local checkpoint store are preserved. The Skipper deployment, including its Compose configuration, plugins and custom theme, remains in `Q:/Docker/docker-inventic/legacy/skipper-support`; the parent `legacy/docker-compose.yml` still builds that site directory.
+
 ```powershell
-docker --context moonhill build -t q2a-core:1.8.8-php83 Q:/ApplicationsAi/Q2A
+docker --context moonhill build -t q2a-core:1.8.8-php83 Q:/ApplicationsPlatforms/Q2A
 ```
 
 The deployment repository then builds its site image from this locally built base. Both image builds must target the same Docker engine. Git publication and deployment are separate operations; local image construction does not publish the repository.
